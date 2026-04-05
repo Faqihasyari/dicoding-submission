@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:online_image_classification/ui/camera_page.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class HomeProvider extends ChangeNotifier {
   String? imagePath;
@@ -22,6 +23,26 @@ class HomeProvider extends ChangeNotifier {
 
     if (pickedFile != null) {
       _setImage(pickedFile);
+    }
+  }
+
+  Future<void> cropImage() async {
+    if (imagePath == null) return;
+
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: imagePath!,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Image',
+          toolbarColor: Colors.deepPurple,
+          toolbarWidgetColor: Colors.white,
+          lockAspectRatio: false
+        ),
+      ],
+    );
+
+    if (croppedFile != null) {
+      _setImage(XFile(croppedFile.path));
     }
   }
 

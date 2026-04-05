@@ -91,6 +91,10 @@ class _HomeBody extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
+                      ElevatedButton(
+                        onPressed: () => context.read<HomeProvider>().cropImage(),
+                        child: Text("Crop"),
+                      ),
                     ].expanded(),
                   ),
                   FilledButton.tonal(
