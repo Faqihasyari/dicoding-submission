@@ -10,7 +10,6 @@ class TfliteService {
 
   List<double> runInference(List input) {
     var output = List.filled(1 * 10, 0.0).reshape([1, 10]);
-    // ⚠️ ganti 10 sesuai jumlah class
 
     interpreter!.run(input, output);
 

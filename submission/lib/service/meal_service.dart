@@ -1,5 +1,5 @@
 import 'package:http/http.dart' as http;
-import '../model/meal_model.dart'; // Sesuaikan lokasi import
+import '../model/meal_model.dart';
 
 class MealService {
   Future<MealResponse?> searchMeal(String foodName) async {
@@ -8,13 +8,11 @@ class MealService {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
-        // Mengonversi JSON string dari internet menjadi object MealResponse
         return mealResponseFromJson(response.body);
       } else {
         return null;
       }
     } catch (e) {
-      print("Error fetching meal: $e");
       return null;
     }
   }

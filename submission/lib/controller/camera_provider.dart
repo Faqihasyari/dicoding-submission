@@ -40,13 +40,10 @@ class CameraProvider extends ChangeNotifier {
 
     notifyListeners();
 
-    // 🔥 STREAM (ADVANCED)
     controller!.startImageStream((image) {
       if (isDetecting) return;
 
       isDetecting = true;
-
-      print("Processing frame from camera...");
 
       Future.delayed(const Duration(milliseconds: 500), () {
         isDetecting = false;

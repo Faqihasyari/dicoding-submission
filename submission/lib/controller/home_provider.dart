@@ -13,7 +13,6 @@ class HomeProvider extends ChangeNotifier {
   String predictedName = "";
   String confidenceString = "";
 
-// Ganti variabel Map sebelumnya dengan List ini
   Map<int, String> foodLabels = {
     1234: "Sushi",
     170: "Lasagna",
@@ -79,13 +78,9 @@ class HomeProvider extends ChangeNotifier {
     final index = resultData['index'];
     final confidence = resultData['confidence'];
 
-    // 🔥 PERBAIKAN: Cara memanggil Map yang benar
-    // Cek apakah angka dari ML ada di dalam Map kita
     if (foodLabels.containsKey(index)) {
       predictedName = foodLabels[index]!;
     } else {
-      // Jika angka yang keluar tidak ada di Map, kita print ke console untuk mencari tahu angka aslinya
-      print("⚠️ PERHATIAN: ML mengeluarkan index yang tidak dikenal: $index");
       predictedName = "Makanan Tidak Dikenal";
     }
 
