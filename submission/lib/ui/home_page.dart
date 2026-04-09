@@ -5,6 +5,8 @@ import 'package:online_image_classification/controller/home_provider.dart';
 import 'package:online_image_classification/util/widgets_extension.dart';
 import 'package:provider/provider.dart';
 
+import 'detail_page.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -63,6 +65,23 @@ class _HomeBody extends StatelessWidget {
                   },
                 ),
               ),
+              Consumer<HomeProvider>(
+                builder: (context, value, child) {
+                  if (value.result.isEmpty) return const SizedBox();
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      value.result,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+              ),
               Column(
                 spacing: 8,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -98,10 +117,22 @@ class _HomeBody extends StatelessWidget {
                     ].expanded(),
                   ),
                   FilledButton.tonal(
-                    onPressed: () {
-                      final scaffoldMessenger = ScaffoldMessenger.of(context);
-                      scaffoldMessenger.showSnackBar(
-                        SnackBar(content: Text("Feature under development 🙏")),
+                    onPressed: () async {
+                      final provider = context.read<HomeProvider>();
+                      await provider.analyzeImage();
+                      if (!context.mounted) return;
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DetailPage(
+                            imagePath: provider.imagePath!,
+                            // 1. Kirim HANYA NAMA untuk API
+                            result: provider.predictedName,
+                            // 2. Kirim PERSENTASE untuk UI
+                            confidence: provider.confidenceString,
+                          ),
+                        ),
                       );
                     },
                     child: const Text("Analyze"),
