@@ -9,11 +9,13 @@ import '../service/inference_isolate.dart';
 class HomeProvider extends ChangeNotifier {
   String? imagePath;
   String result = "";
+  String? errorMessage;
+  bool isAnalyzing = false;
 
   String predictedName = "";
   String confidenceString = "";
 
-  Map<int, String> foodLabels = {
+  final Map<int, String> foodLabels = {
     1234: "Sushi",
     170: "Lasagna",
     319: "Nasi Lemak",
@@ -21,99 +23,146 @@ class HomeProvider extends ChangeNotifier {
     1225: "Beef Bourguignon",
   };
 
-
   XFile? imageFile;
+
+  void _setError(String message) {
+    errorMessage = message;
+    notifyListeners();
+  }
+
+  void clearError() {
+    errorMessage = null;
+    notifyListeners();
+  }
 
   void _setImage(XFile? value) {
     imageFile = value;
     imagePath = value?.path;
+    errorMessage = null;
     notifyListeners();
   }
 
   void openCamera() async {
-    final picker = ImagePicker();
+    try {
+      final picker = ImagePicker();
 
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.camera,
-    );
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.camera,
+      );
 
-    if (pickedFile != null) {
-      _setImage(pickedFile);
+      if (pickedFile != null) {
+        _setImage(pickedFile);
+      }
+    } catch (_) {
+      _setError('Gagal membuka kamera. Cek izin kamera dan coba lagi.');
     }
   }
 
   Future<void> cropImage() async {
-    if (imagePath == null) return;
+    if (imagePath == null) {
+      _setError('Pilih gambar dulu sebelum melakukan crop.');
+      return;
+    }
 
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: imagePath!,
-      uiSettings: [
-        AndroidUiSettings(
-          toolbarTitle: 'Crop Image',
-          toolbarColor: Colors.deepPurple,
-          toolbarWidgetColor: Colors.white,
-          lockAspectRatio: false
-        ),
-      ],
-    );
+    try {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: imagePath!,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: Colors.deepPurple,
+            toolbarWidgetColor: Colors.white,
+            lockAspectRatio: false,
+          ),
+        ],
+      );
 
-    if (croppedFile != null) {
-      _setImage(XFile(croppedFile.path));
+      if (croppedFile != null) {
+        _setImage(XFile(croppedFile.path));
+      }
+    } catch (_) {
+      _setError('Gagal melakukan crop gambar. Coba lagi.');
     }
   }
 
-  Future<void> analyzeImage() async {
-    if (imagePath == null) return;
-
-    final modelFile = await FirebaseMlService().loadModel();
-
-    final resultData = await compute(
-      runInferenceIsolate,
-      {
-        "modelPath": modelFile.path,
-        "imagePath": imagePath!,
-      },
-    );
-
-    final index = resultData['index'];
-    final confidence = resultData['confidence'];
-
-    if (foodLabels.containsKey(index)) {
-      predictedName = foodLabels[index]!;
-    } else {
-      predictedName = "Makanan Tidak Dikenal";
+  Future<bool> analyzeImage() async {
+    if (imagePath == null) {
+      _setError('Pilih atau ambil gambar terlebih dahulu.');
+      return false;
     }
 
-    final confidencePercent = (confidence / 255 * 100).toStringAsFixed(2);
-    confidenceString = "$confidencePercent%";
+    try {
+      isAnalyzing = true;
+      errorMessage = null;
+      notifyListeners();
 
-    result = "$predictedName ($confidenceString)";
+      final modelFile = await FirebaseMlService().loadModel();
 
-    notifyListeners();
+      final resultData = await compute(
+        runInferenceIsolate,
+        {
+          "modelPath": modelFile.path,
+          "imagePath": imagePath!,
+        },
+      );
+
+      final index = resultData['index'];
+      final confidence = resultData['confidence'];
+
+      if (foodLabels.containsKey(index)) {
+        predictedName = foodLabels[index]!;
+      } else {
+        predictedName = "Makanan Tidak Dikenal";
+      }
+
+      final confidencePercent = (confidence / 255 * 100).toStringAsFixed(2);
+      confidenceString = "$confidencePercent%";
+
+      result = "$predictedName ($confidenceString)";
+
+      notifyListeners();
+      return true;
+    } catch (_) {
+      _setError(
+        'Analisis gagal. Pastikan internet aktif untuk download model dan coba lagi.',
+      );
+      return false;
+    } finally {
+      isAnalyzing = false;
+      notifyListeners();
+    }
   }
 
   void openGallery() async {
-    final picker = ImagePicker();
+    try {
+      final picker = ImagePicker();
 
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+      );
 
-    if (pickedFile != null) {
-      _setImage(pickedFile);
+      if (pickedFile != null) {
+        _setImage(pickedFile);
+      }
+    } catch (_) {
+      _setError('Gagal membuka galeri. Cek izin media dan coba lagi.');
     }
   }
 
   void openCustomCamera(BuildContext context) async {
-    final XFile? resultImageFile = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CameraPage(),
-      ),
-    );
+    try {
+      final XFile? resultImageFile = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CameraPage(),
+        ),
+      );
 
-    if (resultImageFile != null) {
-      _setImage(resultImageFile);
+      if (resultImageFile != null) {
+        _setImage(resultImageFile);
+      }
+    } catch (_) {
+      _setError('Kamera kustom gagal dibuka. Coba lagi.');
     }
   }
 }

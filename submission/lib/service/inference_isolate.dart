@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
 
-Future<Map<String, dynamic>> runInferenceIsolate(Map<String, dynamic> data) async {
+Future<Map<String, dynamic>> runInferenceIsolate(
+    Map<String, dynamic> data) async {
   final modelPath = data['modelPath'];
   final imagePath = data['imagePath'];
 
@@ -13,11 +14,11 @@ Future<Map<String, dynamic>> runInferenceIsolate(Map<String, dynamic> data) asyn
 
   final input = List.generate(
     1,
-        (_) => List.generate(
+    (_) => List.generate(
       224,
-          (y) => List.generate(
+      (y) => List.generate(
         224,
-            (x) {
+        (x) {
           final pixel = resized.getPixel(x, y);
           return [pixel.r, pixel.g, pixel.b];
         },

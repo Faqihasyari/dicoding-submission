@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:async';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../env/env.dart';
 
@@ -28,15 +30,14 @@ class GeminiService {
     final prompt = 'Nama makanannya adalah $foodName.';
 
     try {
-      final response = await model.generateContent([Content.text(prompt)]);
+      final response = await model.generateContent(
+          [Content.text(prompt)]).timeout(const Duration(seconds: 20));
 
       final rawText = response.text;
 
       if (rawText != null) {
-        String cleanJson = rawText
-            .replaceAll('```json', '')
-            .replaceAll('```', '')
-            .trim();
+        String cleanJson =
+            rawText.replaceAll('```json', '').replaceAll('```', '').trim();
 
         final Map<String, dynamic> data = jsonDecode(cleanJson);
 
@@ -46,9 +47,13 @@ class GeminiService {
           return data;
         }
       }
-    } catch (e) {
-      return null;
+      throw Exception('Respons nutrisi tidak valid dari Gemini.');
+    } on SocketException {
+      throw Exception('Tidak ada koneksi internet untuk memuat data nutrisi.');
+    } on TimeoutException {
+      throw Exception('Permintaan data nutrisi terlalu lama. Coba lagi.');
+    } catch (_) {
+      throw Exception('Gagal memuat data nutrisi dari Gemini.');
     }
-    return null;
   }
 }

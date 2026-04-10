@@ -7,15 +7,15 @@ List preprocessImage(File imageFile) {
 
   return List.generate(
     1,
-        (_) => List.generate(
+    (_) => List.generate(
       224,
-          (y) => List.generate(
+      (y) => List.generate(
         224,
-            (x) {
+        (x) {
           final pixel = resized.getPixel(x, y);
 
           return [
-            pixel.r ,
+            pixel.r,
             pixel.g,
             pixel.b,
           ];
