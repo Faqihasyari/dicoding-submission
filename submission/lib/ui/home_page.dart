@@ -27,10 +27,10 @@ class _HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: AppColors.cream,
-      appBar: const HomeAppBar(),
-      body: const _HomeBody(),
+      appBar: HomeAppBar(),
+      body: _HomeBody(),
     );
   }
 }
@@ -40,22 +40,22 @@ class _HomeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return const SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+        padding: EdgeInsets.fromLTRB(20, 8, 20, 32),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const HomeImagePreview(),
-            const SizedBox(height: 16),
-            const HomeResultCard(),
-            const SizedBox(height: 16),
-            const HomeErrorCard(),
-            const HomeActionButtons(),
-            const SizedBox(height: 10),
-            const HomeCropButton(),
-            const SizedBox(height: 16),
-            const HomeAnalyzeButton(),
+            HomeImagePreview(),
+            SizedBox(height: 16),
+            HomeResultCard(),
+            SizedBox(height: 16),
+            HomeErrorCard(),
+            HomeActionButtons(),
+            SizedBox(height: 10),
+            HomeCropButton(),
+            SizedBox(height: 16),
+            HomeAnalyzeButton(),
           ],
         ),
       ),

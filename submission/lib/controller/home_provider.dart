@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'
+    show rootBundle; // 🔥 1. IMPORT BARU UNTUK BACA ASSETS
 import 'package:online_image_classification/ui/camera_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -14,14 +16,6 @@ class HomeProvider extends ChangeNotifier {
 
   String predictedName = "";
   String confidenceString = "";
-
-  final Map<int, String> foodLabels = {
-    1234: "Sushi",
-    170: "Lasagna",
-    319: "Nasi Lemak",
-    263: "Satay",
-    1225: "Beef Bourguignon",
-  };
 
   XFile? imageFile;
 
@@ -98,6 +92,14 @@ class HomeProvider extends ChangeNotifier {
 
       final modelFile = await FirebaseMlService().loadModel();
 
+      final labelString = await rootBundle.loadString('assets/labels.txt');
+
+      final List<String> foodLabels = labelString
+          .split('\n')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+
       final resultData = await compute(
         runInferenceIsolate,
         {
@@ -109,8 +111,8 @@ class HomeProvider extends ChangeNotifier {
       final index = resultData['index'];
       final confidence = resultData['confidence'];
 
-      if (foodLabels.containsKey(index)) {
-        predictedName = foodLabels[index]!;
+      if (index >= 0 && index < foodLabels.length) {
+        predictedName = foodLabels[index];
       } else {
         predictedName = "Makanan Tidak Dikenal";
       }

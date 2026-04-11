@@ -41,13 +41,13 @@ class DetailHeroImageSliver extends StatelessWidget {
               File(imagePath),
               fit: BoxFit.cover,
             ),
-            Positioned.fill(
+            const Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    stops: const [0.6, 1.0],
+                    stops: [0.6, 1.0],
                     colors: [
                       Colors.transparent,
                       AppColors.cream,

@@ -13,7 +13,8 @@ class CameraPage extends StatelessWidget {
     return Theme(
       data: ThemeData.dark(),
       child: ChangeNotifierProvider(
-          create: (context) => CameraProvider()..initCamera(), child: _Body()),
+          create: (context) => CameraProvider()..initCamera(),
+          child: const _Body()),
     );
   }
 }
